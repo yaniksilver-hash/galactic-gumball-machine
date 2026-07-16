@@ -100,12 +100,12 @@
   .gball{width:62px;height:62px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
     font-size:28px;font-weight:900;color:var(--glyph);
     box-shadow:inset -6px -7px 12px rgba(0,0,0,.3),inset 4px 4px 9px rgba(255,255,255,.45)}
-  .card .flavor{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .card .state{font-size:22px;font-weight:bold;color:var(--gold-bright);line-height:1.15}
-  .card .symname{font-size:13px;color:var(--cyan);margin-top:2px}
-  .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);margin:6px 0 14px}
-  .card .promptlabel{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
-  .card .prompt{font-size:17px;line-height:1.5;color:var(--ink)}
+  .card .flavor{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .card .state{font-size:20px;font-weight:bold;color:var(--gold-bright);line-height:1.2;margin-top:2px}
+  .step{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.09)}
+  .steplabel{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+  .steplabel b{color:var(--cyan);font-weight:bold}
+  .steptext{font-size:15.5px;line-height:1.5;color:var(--ink)}
   .again{margin-top:16px;background:none;border:none;color:var(--gold-bright);font:inherit;font-size:14px;cursor:pointer;opacity:.85}
   .again:hover{opacity:1}
 
@@ -165,25 +165,29 @@
   <div class="reveal">
     <div class="card" id="card">
       <div class="top">
-        <div class="gball" id="cardBall">✦</div>
+        <div class="gball" id="cardBall"></div>
         <div>
-          <div class="flavor" id="cardFlavor">Flavor</div>
-          <div class="state" id="cardState">Elevated State</div>
-          <div class="symname" id="cardSym">Symbol</div>
+          <div class="flavor" id="cardCombo">Color + Symbol</div>
+          <div class="state" id="cardTitle">Your Activation</div>
         </div>
       </div>
-      <div class="divider"></div>
-      <div class="promptlabel">Your 3-Minute Activation</div>
-      <div class="prompt" id="cardPrompt"></div>
+      <div class="step">
+        <div class="steplabel">Step One · Color · <b id="s1name"></b></div>
+        <div class="steptext" id="s1text"></div>
+      </div>
+      <div class="step">
+        <div class="steplabel">Step Two · Symbol · <b id="s2name"></b></div>
+        <div class="steptext" id="s2text"></div>
+      </div>
       <button class="again" id="again">↻ Twist again</button>
     </div>
   </div>
 
-  <h2 class="section-title">The Cosmic Codex</h2>
-  <div class="section-sub">5 flavors · 8 symbols · infinite combinations. Tap to decode.</div>
+  <h2 class="section-title">The Galactic Gumball Codex</h2>
+  <div class="section-sub">Step One = your color. Step Two = your symbol. Tap any to decode.</div>
   <div class="legend" id="legendColors"></div>
   <div class="legend" id="legendSyms" style="margin-top:12px"></div>
-  <div id="codexOut">Tap any flavor or symbol to reveal its meaning…</div>
+  <div id="codexOut">Tap any color or symbol to reveal its activation…</div>
 
   <div class="cta">
     <div class="price">Your investment: <b>$888</b> · includes a 1-hour Visionary Session with Yanik</div>
@@ -193,25 +197,38 @@
 </div>
 
 <script>
-/* ============ DATA — matched to the real gumball flavors + the symbols on the art ============ */
+/* ============ THE GALACTIC GUMBALL CODEX (verbatim from Yanik's Codex sheet) ============ */
+/* STEP ONE — the gumball's COLOR sets your elevated state */
 const COLORS = [
-  {key:"orange", name:"Orange",        hex:"#f2802e", state:"Bold Action",    meaning:"Ignite momentum. Move before you feel ready."},
-  {key:"berry",  name:"Berry",         hex:"#7d47c9", state:"Deep Intuition", meaning:"Drop into knowing. Trust the first quiet answer."},
-  {key:"tang",   name:"Tangerine",     hex:"#f0a52e", state:"Playful Joy",    meaning:"Lighten up. Creativity flows through delight."},
-  {key:"lime",   name:"Lemon-Lime",    hex:"#5bb84a", state:"Fresh Clarity",  meaning:"Clear the noise. See the simple next step."},
-  {key:"bubble", name:"Classic Bubble",hex:"#e86ba8", state:"Open Wonder",    meaning:"Return to beginner's mind. Everything is possible."},
+  {key:"red",    name:"Breath of Fire",         emoji:"🔥", hex:"#c9402f", step1:"Breathe quickly in and out through your nose for 1 minute. Feel the passion and vitality."},
+  {key:"yellow", name:"Sun Sensational",        emoji:"☀️", hex:"#f2ce3e", step1:"Go outside and connect to the radiance of the Sun to empower every cell for 3 minutes. (If you can't go outside, imagine your inner Sun glowing brighter and brighter for 3 minutes.)"},
+  {key:"orange", name:"Happy Happy",            emoji:"🤠", hex:"#f0a52e", step1:"Bring into your mind and body the feeling of what really made you happy recently. Put a real smile on your face as you imagine this for 3 minutes."},
+  {key:"green",  name:"Great Green Gratitude",  emoji:"🙏", hex:"#83c6a2", step1:"Set your timer for 2 minutes and send a heartfelt audio or video to someone who has made your life better. Tell them specifically what you appreciate about them."},
+  {key:"pink",   name:"Tickled Pink",           emoji:"🤗", hex:"#e89ebc", step1:"Jump up and down on each foot for 33 hops each. Have fun with it and hop to it!"},
 ];
-/* glyphs echo the hand-drawn black symbols painted on the gumballs */
+/* STEP TWO — the gumball's SYMBOL gives your creativity prompt */
 const SYMBOLS = [
-  {g:"|||", name:"Focus",     prompt:"Name the ONE thing that matters most right now. Give it 3 uninterrupted minutes."},
-  {g:"⚛",  name:"Experiment",prompt:"Combine two unrelated things you love. What new idea appears?"},
-  {g:"∞",  name:"Infinity",  prompt:"Zoom out. If there were no limits, what would you build?"},
-  {g:"✷",  name:"Illuminate",prompt:"What quietly excites you? Follow that spark for the next 3 minutes."},
-  {g:"⟳",  name:"Spiral",    prompt:"Revisit an old idea with fresh eyes. What would you add today?"},
-  {g:"◎",  name:"Insight",   prompt:"Look for a sign in your surroundings. What is it nudging you toward?"},
-  {g:"∿",  name:"Flow",      prompt:"Stop forcing it. Take the path of least resistance for one small step."},
-  {g:"☾",  name:"Dream",     prompt:"Close your eyes 60 seconds. Ask your question. Notice the first image."},
+  {key:"view",     name:"New View",               prompt:"Stand on a chair and get a new view. Ask yourself: “If I could see higher and further, what would make this idea even bigger and bolder?”"},
+  {key:"spiral",   name:"The Answer to Everything",prompt:"Find one of your favorite books and flip to page 42. What’s the message from the Universe connected to your idea?"},
+  {key:"sparkle",  name:"Divine Sparkle",         prompt:"If you were making this just for YOU — what would you truly want? (Hint: there are other “You’s” excited and waiting for your creation.)"},
+  {key:"sun",      name:"Ignite",                 prompt:"Go outside of your space and the first word or phrase you hear or see will ignite the answer you are seeking."},
+  {key:"infinity", name:"Infinite Child",         prompt:"How would your inner child solve this or enhance it? (Bonus: make up a silly song with the solution.)"},
+  {key:"mirror",   name:"Self-Love Mirror",       prompt:"Stare into a mirror and unfocus your gaze until you’re seeing yourself with Love 💚 in a new way — now ask that self for the perfect advice you need."},
+  {key:"flow",     name:"Flow and Rhythm",        prompt:"Put on any song from your favorite playlist and close your eyes. Move your body, then write the first 3 words that come to you with your non-dominant hand."},
+  {key:"bolt",     name:"Lightning Bolt of Magic",prompt:"Scroll to a random picture from exactly 3 years ago & send it to someone you randomly select. Ask them to send you back 3 words this sparked for them."},
 ];
+/* hand-drawn-style line glyphs echoing the symbols on the Codex */
+const SYM = {
+  view:'<path d="M12 4 20 19 4 19Z"/><circle cx="12" cy="14.5" r="1.5"/>',
+  spiral:'<path d="M12 12c0-1.3 1.5-1.9 2.6-1.1 1.5 1 1 3.6-.9 4.4-2.5 1-5-1.2-5-3.8 0-3.2 2.9-5.4 6.2-4.6"/>',
+  sparkle:'<path d="M12 2.5c.9 5.6 3 7.6 8.5 8.5-5.6.9-7.6 3-8.5 8.5-.9-5.6-3-7.6-8.5-8.5 5.6-.9 7.6-3 8.5-8.5Z"/>',
+  sun:'<circle cx="12" cy="12" r="3.6"/><path d="M12 2.6v2.3M12 19.1v2.3M2.6 12h2.3M19.1 12h2.3M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/>',
+  infinity:'<path d="M12 12c-1.4 2.3-2.7 3.2-4.7 3.2-1.9 0-3.3-1.4-3.3-3.2s1.4-3.2 3.3-3.2c2 0 3.3 1 4.7 3.2Zm0 0c1.4-2.3 2.7-3.2 4.7-3.2 1.9 0 3.3 1.4 3.3 3.2s-1.4 3.2-3.3 3.2c-2 0-3.3-1-4.7-3.2Z"/>',
+  mirror:'<rect x="4.5" y="4" width="15" height="16" rx="3"/><path d="M12 16.4s-3.3-2-3.3-4.3c0-1.1 1-1.8 1.8-1.8.8 0 1.2.5 1.5.9.3-.4.7-.9 1.5-.9.8 0 1.8.7 1.8 1.8 0 2.3-3.3 4.3-3.3 4.3Z"/>',
+  flow:'<path d="M4 8.5q3-2.2 6 0t6 0M4 12.5q3-2.2 6 0t6 0M4 16.5q3-2.2 6 0t6 0"/>',
+  bolt:'<path d="M13 2.5 5.5 13.5H11l-1 8 8.5-11.5H13Z"/>',
+};
+function symSvg(key,size){return '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+SYM[key]+'</svg>';}
 
 /* ============ SOUND ============ */
 let soundOn=true, actx=null;
@@ -247,7 +264,7 @@ function twist(){
   machine.classList.remove("twisting"); void machine.offsetWidth; machine.classList.add("twisting");
   clunk();
 
-  ballStyle(drop,color); drop.textContent=sym.g;
+  ballStyle(drop,color); drop.innerHTML=symSvg(sym.key,18);
   drop.classList.remove("go"); void drop.offsetWidth;
   setTimeout(()=>drop.classList.add("go"), 300);
   setTimeout(clunk, 1150);
@@ -255,11 +272,13 @@ function twist(){
   card.classList.remove("show");
   setTimeout(()=>{
     const cb=document.getElementById("cardBall");
-    ballStyle(cb,color); cb.textContent=sym.g;
-    document.getElementById("cardFlavor").textContent=color.name+" · flavor";
-    document.getElementById("cardState").textContent=color.state;
-    document.getElementById("cardSym").textContent=sym.g+"  "+sym.name;
-    document.getElementById("cardPrompt").textContent=sym.prompt;
+    ballStyle(cb,color); cb.innerHTML=symSvg(sym.key,30);
+    document.getElementById("cardCombo").textContent=color.name+"  +  "+sym.name;
+    document.getElementById("cardTitle").innerHTML=color.emoji+" "+color.name+" &nbsp;×&nbsp; "+sym.name;
+    document.getElementById("s1name").textContent=color.name;
+    document.getElementById("s1text").textContent=color.step1;
+    document.getElementById("s2name").textContent=sym.name;
+    document.getElementById("s2text").textContent=sym.prompt;
     card.classList.add("show");
     shimmer();
     card.scrollIntoView({behavior:"smooth",block:"center"});
@@ -278,14 +297,14 @@ document.getElementById("again").onclick=e=>{e.stopPropagation();twist();};
 const out=document.getElementById("codexOut");
 COLORS.forEach(c=>{
   const el=document.createElement("div"); el.className="chip";
-  el.innerHTML=`<span class="dot" style="background:radial-gradient(circle at 35% 30%,#fff8,${c.hex} 42%,${c.hex})"></span>${c.name}`;
-  el.onclick=()=>out.innerHTML=`<b style="color:${c.hex}">${c.name} → ${c.state}.</b> ${c.meaning}`;
+  el.innerHTML=`<span class="dot" style="background:radial-gradient(circle at 35% 30%,#fff8,${c.hex} 42%,${c.hex})"></span>${c.emoji} ${c.name}`;
+  el.onclick=()=>out.innerHTML=`<b style="color:var(--gold-bright)">Step One · ${c.emoji} ${c.name}.</b> ${c.step1}`;
   document.getElementById("legendColors").appendChild(el);
 });
 SYMBOLS.forEach(s=>{
   const el=document.createElement("div"); el.className="chip";
-  el.innerHTML=`<span class="dot" style="background:#e9e0ff">${s.g}</span> ${s.name}`;
-  el.onclick=()=>out.innerHTML=`<b>${s.g}  ${s.name}.</b> ${s.prompt}`;
+  el.innerHTML=`<span class="dot" style="background:#e9e0ff;color:var(--glyph)">${symSvg(s.key,15)}</span> ${s.name}`;
+  el.onclick=()=>out.innerHTML=`<b style="color:var(--cyan)">Step Two · ${s.name}.</b> ${s.prompt}`;
   document.getElementById("legendSyms").appendChild(el);
 });
 
